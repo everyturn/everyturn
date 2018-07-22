@@ -1,0 +1,9 @@
+<mat-toolbar color="primary">
+  <button mat-icon-button (click)="close.emit()">
+    <mat-icon>close</mat-icon>
+  </button>
+  Debug Panel
+</mat-toolbar>
+<div fxLayout="column" style="padding: 16px;">
+<button mat-raised-button (click)="step.emit()">auto step</button>
+</div>

@@ -1,0 +1,20 @@
+<mat-list-item [ngClass]="{'shadow-pop-tr': status === PLAYER_STATUS.CAN_MOVE}">
+  <img matListAvatar [src]="player.profile.picture" style="border: 2px solid;" [ngStyle]="{'border-color': player.color}">
+  <h3 matLine>
+    {{player.profile.nickname}}
+  </h3>
+  <p matLine [ngSwitch]="status" class="player-status">
+    <ng-container *ngSwitchCase="PLAYER_STATUS.CAN_MOVE">
+      <ng-container [ngSwitch]="isMe">
+        <span *ngSwitchCase="true" class="player-status__your-turn">Your Turn</span>
+        <span *ngSwitchCase="false">Current Player</span>
+      </ng-container>
+    </ng-container>
+
+
+    <span *ngSwitchCase="PLAYER_STATUS.WAITING" class="player-status__waiting">Waiting...</span>
+
+    <span *ngSwitchCase="PLAYER_STATUS.DONE_WINNER">{{isMe ? 'You Won!' : 'Winner'}}</span>
+    <span *ngSwitchCase="PLAYER_STATUS.DONE_INDIFFERENT">&nbsp;</span>
+  </p>
+</mat-list-item>

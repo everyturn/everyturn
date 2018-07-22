@@ -1,0 +1,29 @@
+{
+  "private": true,
+  "scripts": {
+    "start": "node dist/server/colyseus.js",
+    "start:dev": "cross-env NODE_ENV=development node -r ts-node/register colyseus.ts",
+    "predeploy": "npm run clean && npm run build-ts",
+    "push-build": "gh-pages --dist . --src \"{package-lock.json,package.json,dist/**/*}\" --branch server-builds",
+    "clean": "rimraf dist && gh-pages-clean",
+    "build-ts": "tsc",
+    "watch-ts": "tsc -w"
+  },
+  "devDependencies": {
+    "@types/node": "^8.10.20",
+    "cross-env": "^5.2.0",
+    "gh-pages": "^1.2.0",
+    "rimraf": "^2.6.2",
+    "ts-node": "^7.0.0"
+  },
+  "dependencies": {
+    "@colyseus/monitor": "^0.1.7",
+    "boardgame.io": "^0.24.0",
+    "colyseus": "^0.9.13",
+    "express": "^4.16.3",
+    "redux": "^4.0.0"
+  },
+  "engines": {
+    "node": "8"
+  }
+}

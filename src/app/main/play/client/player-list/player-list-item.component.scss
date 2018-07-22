@@ -1,0 +1,32 @@
+.player-status {
+  letter-spacing: 0.1em;
+  font-style: italic;
+  color: #bcbc5e;
+
+  .player-status__waiting {
+    color: #c3c3c3
+  }
+
+  .player-status__your-turn {
+    color: #46ce26;
+    animation: 6s ease-out infinite opacityPulse;
+    opacity: 1;
+  }
+}
+
+.shadow-pop-tr {
+  animation: shadow-pop-tr 0.3s cubic-bezier(0.470, 0.000, 0.745, 0.715) both;
+}
+
+@keyframes shadow-pop-tr {
+  0% {
+    box-shadow: 0 0 #3e3e3e, 0 0 #3e3e3e, 0 0 #3e3e3e, 0 0 #3e3e3e, 0 0 #3e3e3e, 0 0 #3e3e3e, 0 0 #3e3e3e, 0 0 #3e3e3e;
+    transform: translateX(0) translateY(0);
+    border: none;
+  }
+  100% {
+    box-shadow: -1px 1px #3e3e3e, -2px 2px #3e3e3e;
+    transform: translateX(2px) translateY(-2px);
+    border: 1px solid #3e3e3e;
+  }
+}

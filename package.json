@@ -1,7 +1,7 @@
 {
   "private": true,
   "scripts": {
-    "start": "node dist/server/start.js",
+    "start": "node dist/server/colyseus.js",
     "start:dev": "cross-env NODE_ENV=development node -r ts-node/register start.ts",
     "deploy": "npm run clean && npm run build-ts && npm run push-build",
     "push-build": "gh-pages --dist . --src \"{package-lock.json,package.json,dist/**/*}\" --branch server-builds",

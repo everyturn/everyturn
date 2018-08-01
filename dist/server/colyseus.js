@@ -19,7 +19,7 @@ gameServer.register('base-room', base_room_1.BaseRoom);
 gameServer.onShutdown(function () {
     console.log(`game server is going down.`);
 });
-const PORT = 8000;
+const PORT = +(process.env.PORT || 8000);
 gameServer.listen(PORT, undefined, undefined, function () {
     console.log('HTTP listening on ', this.address());
 });

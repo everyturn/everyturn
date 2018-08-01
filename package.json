@@ -5,7 +5,7 @@
     "start:dev": "cross-env NODE_ENV=development node -r ts-node/register start.ts",
     "deploy": "npm run clean && npm run build-ts && npm run push-build",
     "push-build": "gh-pages --dist . --src \"{package-lock.json,package.json,dist/**/*}\" --branch server-builds",
-    "clean": "rimraf dist",
+    "clean": "rimraf dist && gh-pages-clean",
     "build-ts": "tsc",
     "watch-ts": "tsc -w"
   },

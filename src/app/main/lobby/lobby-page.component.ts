@@ -30,7 +30,9 @@ export class LobbyPageComponent {
   }
 
   async play() {
-    const room = await this.colyseus.joinWhenReady('base-room');
+    const room = await this.colyseus.joinWhenReady('base-room', {
+      accessToken: localStorage.getItem('access_token')
+    });
 
     this.router.navigate(['../rooms', room.id], {relativeTo: this.route});
   }

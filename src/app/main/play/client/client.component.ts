@@ -29,6 +29,7 @@ import { applyMiddleware } from 'redux';
                    [getBoardInputs]="getBoardInputs"
 
                    (leave)="leave.emit()"
+                   [debug]="debug"
                    (toggleDebug)="drawer.toggle()"
                    (playAgain)="playAgain()"
           >
@@ -55,6 +56,8 @@ export class ClientComponent implements OnChanges {
 
   @Input() isRoomReady: boolean;
   @Input() players: IPlayer[];
+  @Input() debug = true;
+
   @Output() leave = new EventEmitter<never>();
 
   client: BgioClient;

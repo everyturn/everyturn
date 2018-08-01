@@ -27,6 +27,8 @@ export class RoomComponent {
   @Input() board: any;
   @Input() getBoardInputs: () => any;
 
+  @Input() debug: boolean;
+
   canPlayerMakeMove = (playerID: string) => {
     return this.isRoomReady && this.game.flow.canPlayerMakeMove(this.gameState.G, this.gameState.ctx, playerID);
   };

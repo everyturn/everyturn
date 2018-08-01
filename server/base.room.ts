@@ -1,19 +1,20 @@
 import { Room } from 'colyseus';
 import { CreateGameReducer } from 'boardgame.io/core';
 import { createStore } from 'redux';
-import { TicTacToe as game } from '../src/game-types/tic-tac-toe';
+import { TicTacToe as game } from '../shared/games/tic-tac-toe';
+import { getUserFromToken } from './get-user-from-token';
 
 const MOCK_PLAYERS = [
   {
     profile: {
-      nickname: 'itsME',
+      nickname: 'Player 1',
       picture: 'https://api.adorable.io/avatars/162/itsME@adorable.png',
     },
     color: 'rgb(102,127,203)',
   },
   {
     profile: {
-      nickname: 'JohnJohn',
+      nickname: 'Player 2',
       picture: 'https://api.adorable.io/avatars/162/John@adorable.png',
     },
     color: 'rgb(234, 123, 123)',
@@ -24,6 +25,8 @@ export class BaseRoom extends Room {
   store: any;
 
   onInit() {
+    this.setSeatReservationTime(10);
+
     this.maxClients = 2;
 
     const reducer = CreateGameReducer({
@@ -39,10 +42,15 @@ export class BaseRoom extends Room {
     });
   }
 
-  onJoin(client) {
+  async onAuth(options) {
+    return {user: options.accessToken ? await getUserFromToken(options.accessToken) : false};
+  }
+
+  onJoin(client, options: any, auth: {user: false | {nickname: string, picture: string}}) {
     const idx = this.state.players.length.toString();
     client.playerID = idx;
-    this.state.players.push({...MOCK_PLAYERS[idx], playerID: idx, id: client.sessionId});
+    const player = {...MOCK_PLAYERS[idx], ...(auth.user ? {profile: auth.user} : {}), playerID: idx, id: client.sessionId};
+    this.state.players.push(player);
 
     if (this.clients.length === 2) {
       this.state.isReady = true;

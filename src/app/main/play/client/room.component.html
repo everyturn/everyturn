@@ -37,7 +37,7 @@
       style="height: 100px; min-height: 100px; max-height: 100px; background-color: #fa4f4f; color: white; position: relative;"
       fxLayout="column"
       fxLayoutAlign="end">
-      <button mat-icon-button [matMenuTriggerFor]="menu" style="position: absolute; top: 6px; right: 4px;">
+      <button *ngIf="debug" mat-icon-button [matMenuTriggerFor]="menu" style="position: absolute; top: 6px; right: 4px;">
         <mat-icon>more_vert</mat-icon>
       </button>
       <mat-menu #menu="matMenu" xPosition="before">

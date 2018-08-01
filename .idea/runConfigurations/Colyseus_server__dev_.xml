@@ -1,0 +1,5 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Colyseus server [dev]" type="NodeJSConfigurationType" factoryName="Node.js" node-parameters="-r ts-node/register" path-to-js-file="colyseus.ts" working-dir="$PROJECT_DIR$/server/">
+    <method v="2" />
+  </configuration>
+</component>

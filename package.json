@@ -3,9 +3,10 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
+    "start": "ng serve --host local.com",
     "build": "ng build --prod",
     "deploy": "ngh --no-silent --dir=\"dist/everyturn\" --repo=https://GH_TOKEN@github.com/everyturn/everyturn.github.io.git --branch=master",
+    "clean": "rimraf dist",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e"
@@ -24,6 +25,7 @@
     "@angular/platform-browser": "^6.1.0",
     "@angular/platform-browser-dynamic": "^6.1.0",
     "@angular/router": "^6.1.0",
+    "auth0-js": "^9.7.3",
     "boardgame.io": "^0.24.0",
     "colyseus.js": "^0.9.13",
     "core-js": "^2.5.4",

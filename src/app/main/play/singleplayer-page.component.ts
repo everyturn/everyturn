@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
 import { CreateGameReducer } from 'boardgame.io/dist/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ai, TicTacToe } from '../../../game-types/tic-tac-toe';
 import { TicTacToeBoardComponent } from '../boards/tic-tac-toe-board.component';
 import { AI } from 'boardgame.io/ai';
+import { ai, TicTacToe } from '../../../../shared/games/tic-tac-toe';
 
 const MOCK_ROOM = {
   state: {
@@ -23,7 +23,7 @@ const MOCK_ROOM = {
           nickname: 'ai',
           picture: 'https://api.adorable.io/avatars/162/itsME2@adorable.png',
         },
-        color: 'rgb(102,127,203)',
+        color: 'rgb(234, 123, 123)',
       }
     ]
   },

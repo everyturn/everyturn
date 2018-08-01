@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ColyseusService } from '../colyseus.service';
 import { map } from 'rxjs/operators';
 import { TicTacToeBoardComponent } from '../boards/tic-tac-toe-board.component';
-import { TicTacToe } from '../../../game-types/tic-tac-toe';
+import { TicTacToe } from '../../../../shared/games/tic-tac-toe';
 
 @Component({
   template: `
@@ -16,6 +16,7 @@ import { TicTacToe } from '../../../game-types/tic-tac-toe';
       [gameID]="room?.id"
       [playerID]="getPlayerId()"
       [multiplayer]="{server: room}"
+      [debug]="false"
       [playAgain]="playAgain"
       (leave)="leave()">
     </et-client>
@@ -35,7 +36,9 @@ export class MultiplayerPageComponent implements OnInit, OnDestroy {
   ) {
     this.playAgain = () => {
       this.room.onLeave.addOnce(async () => {
-        const room = await this.colyseus.joinWhenReady(this.room.name);
+        const room = await this.colyseus.joinWhenReady(this.room.name, {
+          accessToken: localStorage.getItem('access_token')
+        });
         delete this.room;
 
         this.router.navigate(['..', room.id], {relativeTo: this.route});

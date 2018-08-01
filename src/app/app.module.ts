@@ -3,6 +3,8 @@ import { NgModule } from '@angular/core';
 import { RootComponent } from './root.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
+import { AuthModule } from './auth/auth.module';
+import { AuthCallbackComponent } from './auth/auth-callback.component';
 
 @NgModule({
   declarations: [
@@ -10,6 +12,7 @@ import { RouterModule } from '@angular/router';
   ],
   imports: [
     BrowserModule,
+    BrowserAnimationsModule,
     RouterModule.forRoot([
       {
         path: 'welcome',
@@ -25,7 +28,8 @@ import { RouterModule } from '@angular/router';
         redirectTo: 'welcome',
       }
     ]),
-    BrowserAnimationsModule,
+
+    AuthModule,
   ],
   providers: [],
   bootstrap: [RootComponent]

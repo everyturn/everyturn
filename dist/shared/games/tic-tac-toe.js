@@ -9,7 +9,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const core_1 = require("boardgame.io/dist/core");
 const ai_1 = require("boardgame.io/dist/ai");
-exports.ai = ai_1.AI({
+exports.TicTacToeAi = ai_1.AI({
     enumerate: G => {
         const r = [];
         for (let i = 0; i < 9; i++) {

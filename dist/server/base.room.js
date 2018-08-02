@@ -3,8 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const colyseus_1 = require("colyseus");
 const core_1 = require("boardgame.io/core");
 const redux_1 = require("redux");
-const tic_tac_toe_1 = require("../shared/games/tic-tac-toe");
 const get_user_from_token_1 = require("./get-user-from-token");
+const games_1 = require("../shared/games");
 const MOCK_PLAYERS = [
     {
         profile: {
@@ -22,11 +22,12 @@ const MOCK_PLAYERS = [
     }
 ];
 class BaseRoom extends colyseus_1.Room {
-    onInit() {
+    onInit({ gameName }) {
         this.setSeatReservationTime(10);
         this.maxClients = 2;
+        this.game = games_1.getGameByName(gameName).Game;
         const reducer = core_1.CreateGameReducer({
-            game: tic_tac_toe_1.TicTacToe,
+            game: this.game,
             numPlayers: 2,
         });
         this.store = redux_1.createStore(reducer);
@@ -52,9 +53,9 @@ class BaseRoom extends colyseus_1.Room {
     onMessage(client, data) {
         if (this.state.isReady
             &&
-                (data.action.type === 'MAKE_MOVE' && tic_tac_toe_1.TicTacToe.flow.canPlayerMakeMove(this.state.bgio.G, this.state.bgio.ctx, client.playerID)
+                (data.action.type === 'MAKE_MOVE' && this.game.flow.canPlayerMakeMove(this.state.bgio.G, this.state.bgio.ctx, client.playerID)
                     ||
-                        data.action.type === 'GAME_EVENT' && tic_tac_toe_1.TicTacToe.flow.canPlayerCallEvent(this.state.bgio.G, this.state.bgio.ctx, client.playerID))) {
+                        data.action.type === 'GAME_EVENT' && this.game.flow.canPlayerCallEvent(this.state.bgio.G, this.state.bgio.ctx, client.playerID))) {
             // todo if (state._stateID == stateID) ??
             this.store.dispatch(data.action);
             this.state.bgio = this.store.getState();
@@ -62,7 +63,7 @@ class BaseRoom extends colyseus_1.Room {
             for (const c of this.clients) {
                 const ctx = Object.assign({}, this.state.bgio.ctx, { _random: undefined });
                 const newState = Object.assign({}, this.state.bgio, {
-                    G: tic_tac_toe_1.TicTacToe.playerView(this.state.bgio.G, ctx, c.playerID),
+                    G: this.game.playerView(this.state.bgio.G, ctx, c.playerID),
                     ctx: ctx,
                 });
                 this.send(c, { msgType: 'sync', gameID: data.gameID, state: newState });

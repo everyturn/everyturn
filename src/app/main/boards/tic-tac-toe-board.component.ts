@@ -32,8 +32,4 @@ export class TicTacToeBoardComponent extends Board<{ cells: number[] }, ITicTacT
   isCellActive(id) {
     return this.isActive && this.G.cells[id] === null;
   }
-
-  ngOnInit() {
-    console.log('init');
-  }
 }

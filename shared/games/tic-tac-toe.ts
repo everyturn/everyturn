@@ -9,7 +9,7 @@
 import { Game } from 'boardgame.io/dist/core';
 import { AI } from 'boardgame.io/dist/ai';
 
-export const ai = AI({
+export const TicTacToeAi = AI({
   enumerate: G => {
     const r: any[] = [];
     for (let i = 0; i < 9; i++) {

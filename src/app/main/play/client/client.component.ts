@@ -17,7 +17,7 @@ import { applyMiddleware } from 'redux';
 
         <div fxLayout fxFlexFill fxLayoutAlign="center center">
 
-          <et-room @fadeInUp
+          <et-room @fadeInUp *ngIf="game"
                    [gameState]="client?.getState()"
                    [game]="game"
 

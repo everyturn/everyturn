@@ -4,7 +4,7 @@ import { Component, OnInit } from '@angular/core';
   selector: 'et-welcome-page',
   template: `    
     <div style="padding: 30px;" fxFlexFill fxLayout fxLayoutAlign="center">
-      <span class="mat-headline">A welcome/landing page will soon be here. For now just go directly <a routerLink="/app">to the app</a>!</span>
+      <span class="mat-headline">A welcome/landing page will soon be here. For now just go directly <a routerLink="/play">to the app</a>!</span>
     </div>
   `,
   styles: []

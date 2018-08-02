@@ -1,9 +1,8 @@
 import { Component } from '@angular/core';
 import { CreateGameReducer } from 'boardgame.io/dist/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TicTacToeBoardComponent } from '../boards/tic-tac-toe-board.component';
-import { AI } from 'boardgame.io/ai';
-import { ai, TicTacToe } from '../../../../shared/games/tic-tac-toe';
+import { getGameByName } from '../../../../shared/games';
+import { getGameBoardByName } from '../boards/boards.module';
 
 const MOCK_ROOM = {
   state: {
@@ -31,27 +30,42 @@ const MOCK_ROOM = {
 
 @Component({
   template: `
-    <et-client [isRoomReady]="room.state.isReady"
-               [players]="room.state.players"
-               [board]="BoardComponent"
-               [game]="Game"
-               [ai]="ai"
-               gameID="gameID"
-               playerID="0"
-               (leave)="leave()"></et-client>
+    <ng-container [ngSwitch]="!!Game">
+      <div class="mat-headline" fxLayout fxLayoutAlign="center center" style="color: white;"fxFlexFill *ngSwitchCase="false">
+        Game Not Found
+      </div>
+      <et-client *ngSwitchCase="true"
+                 [isRoomReady]="room.state.isReady"
+                 [players]="room.state.players"
+                 [board]="BoardComponent"
+                 [game]="Game"
+                 [ai]="ai"
+                 gameID="gameID"
+                 playerID="0"
+                 (leave)="leave()"></et-client>
+    </ng-container>
   `,
 })
 export class SingleplayerPageComponent {
-
   room = MOCK_ROOM;
-  BoardComponent = TicTacToeBoardComponent;
-  Game = TicTacToe;
-  ai = ai;
+  BoardComponent;
+  Game;
+  ai;
 
   constructor(private route: ActivatedRoute, private router: Router) {
+    route.paramMap.subscribe(paramMap => {
+      const gameName = paramMap.get('gameName');
+
+      const gameRecord = getGameByName(gameName);
+      if (gameRecord) {
+        this.Game = gameRecord.Game;
+        this.ai = gameRecord.ai;
+        this.BoardComponent = getGameBoardByName(gameName);
+      }
+    });
   }
 
   leave() {
-    this.router.navigate(['../lobby'], {relativeTo: this.route});
+    this.router.navigate(['../..'], {relativeTo: this.route});
   }
 }

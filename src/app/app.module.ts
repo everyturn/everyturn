@@ -19,7 +19,7 @@ import { AuthCallbackComponent } from './auth/auth-callback.component';
         loadChildren: './welcome/welcome.module#WelcomeModule'
       },
       {
-        path: 'app',
+        path: 'play',
         loadChildren: './main/main.module#MainModule'
       },
       {

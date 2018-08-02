@@ -35,7 +35,7 @@ export class ColyseusService extends ColyseusClient implements OnDestroy {
     return this.rooms[roomId];
   }
 
-  protected joinPromise(roomId: string, options?: {accessToken: string}): Promise<Room> {
+  protected joinPromise(roomId: string, options: {accessToken?: string, gameName: string}): Promise<Room> {
     return new Promise((resolve, reject) => {
       const room = this.join(roomId, options);
       room.onJoin.addOnce(() => {
@@ -47,7 +47,7 @@ export class ColyseusService extends ColyseusClient implements OnDestroy {
     });
   }
 
-  joinWhenReady(roomId: string, options?: {accessToken: string}): Promise<Room> {
+  joinWhenReady(roomId: string, options: {accessToken?: string, gameName: string}): Promise<Room> {
     return new Promise((resolve, reject) => {
       if (!this.isReady) {
         this.onOpen.addOnce(() => {

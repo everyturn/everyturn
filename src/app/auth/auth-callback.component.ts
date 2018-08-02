@@ -27,10 +27,10 @@ export class AuthCallbackComponent {
   constructor(auth: AuthService, router: Router) {
     auth.handleAuthentication()
       .then(() => {
-        router.navigate(['/app'], {replaceUrl: true});
+        router.navigate(['/play'], {replaceUrl: true});
       })
       .catch((err) => {
-        router.navigate(['/app'], {replaceUrl: true});
+        router.navigate(['/play'], {replaceUrl: true});
         alert(`Error: ${err.error}. Check the console for further details.`);
       });
   }

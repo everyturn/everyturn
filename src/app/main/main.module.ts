@@ -24,21 +24,22 @@ import { RoomComponent } from './play/client/room.component';
       component: MainComponent,
       children: [
         {
-          path: 'lobby',
-          component: LobbyPageComponent,
-        },
-        {
-          path: 'rooms/:roomId',
-          component: MultiplayerPageComponent,
-        },
-        {
-          path: 'singleplayer',
-          component: SingleplayerPageComponent,
-        },
-        {
           path: '',
-          pathMatch: 'full',
-          redirectTo: 'lobby',
+          component: LobbyPageComponent,
+          pathMatch: 'full'
+        },
+        {
+          path: ':gameName',
+          children: [
+            {
+              path: 'rooms/:roomId',
+              component: MultiplayerPageComponent,
+            },
+            {
+              path: 'singleplayer',
+              component: SingleplayerPageComponent,
+            },
+          ]
         },
       ]
     }]),

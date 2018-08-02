@@ -1,8 +1,8 @@
 import { Room } from 'colyseus';
 import { CreateGameReducer } from 'boardgame.io/core';
 import { createStore } from 'redux';
-import { TicTacToe as game } from '../shared/games/tic-tac-toe';
 import { getUserFromToken } from './get-user-from-token';
+import { getGameByName } from '../shared/games';
 
 const MOCK_PLAYERS = [
   {
@@ -23,14 +23,16 @@ const MOCK_PLAYERS = [
 
 export class BaseRoom extends Room {
   store: any;
+  game: any;
 
-  onInit() {
+  onInit({gameName}: {gameName: string}) {
     this.setSeatReservationTime(10);
 
     this.maxClients = 2;
 
+    this.game = getGameByName(gameName).Game;
     const reducer = CreateGameReducer({
-      game,
+      game: this.game,
       numPlayers: 2,
     });
     this.store = createStore(reducer);
@@ -64,9 +66,9 @@ export class BaseRoom extends Room {
       this.state.isReady
       &&
       (
-        data.action.type === 'MAKE_MOVE' && game.flow.canPlayerMakeMove(this.state.bgio.G, this.state.bgio.ctx, client.playerID)
+        data.action.type === 'MAKE_MOVE' && this.game.flow.canPlayerMakeMove(this.state.bgio.G, this.state.bgio.ctx, client.playerID)
         ||
-        data.action.type === 'GAME_EVENT' && game.flow.canPlayerCallEvent(this.state.bgio.G, this.state.bgio.ctx, client.playerID)
+        data.action.type === 'GAME_EVENT' && this.game.flow.canPlayerCallEvent(this.state.bgio.G, this.state.bgio.ctx, client.playerID)
       )
     ) {
 
@@ -78,7 +80,7 @@ export class BaseRoom extends Room {
       for (const c of this.clients) {
         const ctx = Object.assign({}, this.state.bgio.ctx, { _random: undefined });
         const newState = Object.assign({}, this.state.bgio, {
-          G: game.playerView(this.state.bgio.G, ctx, (c as any).playerID),
+          G: this.game.playerView(this.state.bgio.G, ctx, (c as any).playerID),
           ctx: ctx,
         });
 

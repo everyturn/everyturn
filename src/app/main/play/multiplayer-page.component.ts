@@ -41,10 +41,8 @@ export class MultiplayerPageComponent implements OnInit, OnDestroy {
   ) {
     this.playAgain = () => {
       this.room.onLeave.addOnce(async () => {
-        const room = await this.colyseus.joinWhenReady(this.room.name, {
-          accessToken: localStorage.getItem('access_token'),
-          gameName: this.Game.name,
-        });
+        const room = await this.colyseus.createGameRoom(this.Game.name);
+
         delete this.room;
 
         this.router.navigate(['..', room.id], {relativeTo: this.route});

@@ -1,6 +1,7 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { Client as ColyseusClient, Room } from 'colyseus.js';
 import { SERVER_ORIGIN } from './app-config';
+import { AuthService } from '../auth/auth.service';
 
 export enum CONNECTION_STATUS {
   DISCONNECTED = 'DISCONNECTED',
@@ -14,7 +15,7 @@ export enum CONNECTION_STATUS {
   providedIn: 'root',
 })
 export class ColyseusService extends ColyseusClient implements OnDestroy {
-  constructor() {
+  constructor(private auth: AuthService) {
     super(SERVER_ORIGIN);
   }
 
@@ -47,7 +48,7 @@ export class ColyseusService extends ColyseusClient implements OnDestroy {
     });
   }
 
-  joinWhenReady(roomId: string, options: {accessToken?: string, gameName: string}): Promise<Room> {
+  protected joinWhenReady(roomId: string, options: {accessToken?: string, gameName: string}): Promise<Room> {
     return new Promise((resolve, reject) => {
       if (!this.isReady) {
         this.onOpen.addOnce(() => {
@@ -60,6 +61,17 @@ export class ColyseusService extends ColyseusClient implements OnDestroy {
         resolve(this.joinPromise(roomId, options));
       }
     });
+  }
+
+  createGameRoom(gameName: string) {
+    const opt: any = {gameName};
+    const accessToken = this.auth.getAccessToken();
+    if (accessToken) {
+      // we can't just {gameName, accessToken: this.auth.getAccessToken()}
+      // because colyseus+msgPack will serialize 'undefined' as string
+      opt.accessToken = accessToken;
+    }
+    return this.joinWhenReady('base-room', opt);
   }
 
   ngOnDestroy() {

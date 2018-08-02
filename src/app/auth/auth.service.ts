@@ -128,4 +128,10 @@ export class AuthService {
     return Date.now() < expiresAt;
   }
 
+  getAccessToken() {
+    if (this.isAuthenticated()) {
+      return localStorage.getItem('access_token');
+    }
+  }
+
 }

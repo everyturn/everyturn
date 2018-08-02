@@ -26,7 +26,7 @@
     "@angular/platform-browser-dynamic": "^6.1.0",
     "@angular/router": "^6.1.0",
     "auth0-js": "^9.7.3",
-    "boardgame.io": "github:amitport/boardgame.io#overridable-multiplayer-client",
+    "boardgame.io": "^0.24.0",
     "colyseus.js": "^0.9.13",
     "core-js": "^2.5.4",
     "ng-animate": "^0.3.4",
@@ -35,6 +35,7 @@
     "react": "^16.4.1",
     "react-dom": "^16.4.1",
     "redux": "^4.0.0",
+    "redux-logger": "^3.0.6",
     "rxjs": "^6.0.0",
     "zone.js": "~0.8.26"
   },

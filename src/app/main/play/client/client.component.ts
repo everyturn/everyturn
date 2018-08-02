@@ -3,6 +3,7 @@ import { IPlayer } from '../../types';
 import { fadeInUp } from '../../animations';
 import { BgioClient } from '../../core/bgio-client';
 import { applyMiddleware } from 'redux';
+import logger from 'redux-logger';
 
 @Component({
   selector: 'et-client',
@@ -73,9 +74,6 @@ export class ClientComponent implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes.isRoomReady) {
-      if (!changes.isRoomReady.currentValue && changes.isRoomReady.previousValue) {
-        throw new Error('we don\'t support a room moving back from ready state (yet)');
-      }
       if (changes.isRoomReady.currentValue) {
         this.client = new BgioClient({
           game: this.game,
@@ -85,7 +83,7 @@ export class ClientComponent implements OnChanges {
           gameID: this.gameID,
           playerID: this.playerID,
           credentials: this.credentials,
-          enhancer: this.ai ? applyMiddleware(store => next => action => {
+          enhancer: this.ai ? applyMiddleware(logger, store => next => action => {
             next(action);
             const state = store.getState() as any;
             if (state.ctx.currentPlayer === '1') {
@@ -93,7 +91,7 @@ export class ClientComponent implements OnChanges {
                 this.client.step();
               }, 300);
             }
-          }) : undefined,
+          }) : applyMiddleware(logger),
         });
 
         // todo is this needed? (forceUpdate on react)

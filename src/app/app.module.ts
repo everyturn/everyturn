@@ -4,33 +4,39 @@ import { RootComponent } from './root.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
 import { AuthModule } from './auth/auth.module';
-import { BaseUiModule } from './base-ui/base-ui.module';
+import { WelcomePageComponent } from './base-ui/welcome-page.component';
+import { FlexLayoutModule } from '@angular/flex-layout';
+import { MatButtonModule } from '@angular/material';
+import { WorkInProgressComponent } from './base-ui/work-in-progress.component';
 
 @NgModule({
   declarations: [
-    RootComponent
+    RootComponent,
+    WelcomePageComponent,
+    WorkInProgressComponent,
   ],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
     RouterModule.forRoot([
       {
-        path: 'welcome',
-        loadChildren: './welcome/welcome.module#WelcomeModule'
+        path: '',
+        component: WelcomePageComponent,
       },
       {
         path: 'play',
         loadChildren: './main/main.module#MainModule'
       },
       {
-        path: '',
-        pathMatch: 'full',
-        redirectTo: 'welcome',
+        path: 'documentation',
+        loadChildren: './documentation/documentation.module#DocumentationModule'
       }
     ]),
 
     AuthModule,
-    BaseUiModule,
+
+    FlexLayoutModule,
+    MatButtonModule,
   ],
   providers: [],
   bootstrap: [RootComponent]

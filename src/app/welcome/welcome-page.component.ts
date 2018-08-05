@@ -1,20 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'et-welcome-page',
-  template: `    
-    <div style="padding: 30px;" fxFlexFill fxLayout fxLayoutAlign="center">
-      <span class="mat-headline">A welcome/landing page will soon be here. For now just go directly <a routerLink="/play">to the app</a>!</span>
-    </div>
-  `,
-  styles: []
+  templateUrl: './welcome-page.component.html',
+  styleUrls: ['./welcome-page.component.scss'],
 })
-export class WelcomePageComponent implements OnInit {
-
-  constructor() {
-  }
-
-  ngOnInit() {
-  }
-
-}
+export class WelcomePageComponent {}

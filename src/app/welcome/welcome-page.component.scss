@@ -1,0 +1,19 @@
+.cover-page {
+  //noinspection CssUnknownTarget
+  background: linear-gradient(rgba(255, 255, 255, 1), rgba(255, 255, 255, 0.4)), url('/assets/welcome-background.png');
+  background-size: cover;
+}
+
+.main-title {
+  font-weight: 500;
+  font-variant-caps: small-caps;
+  text-shadow: 2px 2px #ff00004f;
+  color: #2583b9;
+  letter-spacing: 0.23em;
+}
+
+.lg-button {
+  padding: 0 32px;
+  font-size: 18px;
+  line-height: 56px;
+}

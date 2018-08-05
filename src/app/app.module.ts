@@ -4,7 +4,7 @@ import { RootComponent } from './root.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
 import { AuthModule } from './auth/auth.module';
-import { AuthCallbackComponent } from './auth/auth-callback.component';
+import { BaseUiModule } from './base-ui/base-ui.module';
 
 @NgModule({
   declarations: [
@@ -30,6 +30,7 @@ import { AuthCallbackComponent } from './auth/auth-callback.component';
     ]),
 
     AuthModule,
+    BaseUiModule,
   ],
   providers: [],
   bootstrap: [RootComponent]

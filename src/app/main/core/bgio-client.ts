@@ -6,10 +6,11 @@
  * https://opensource.org/licenses/MIT.
  */
 
-import { createStore } from 'redux';
+import { createStore, compose, applyMiddleware } from 'redux';
+import * as Actions from './action-types';
+import * as ActionCreators from './action-creators';
 import { Multiplayer } from './multiplayer';
 import { CreateGameReducer } from 'boardgame.io/dist/core';
-import * as ActionCreators from './action-creators';
 
 /**
  * createDispatchers
@@ -21,12 +22,27 @@ function createDispatchers(
   innerActionNames,
   store,
   playerID,
-  credentials
+  credentials,
+  multiplayer
 ) {
   return innerActionNames.reduce((dispatchers, name) => {
-    dispatchers[name] = function (...args) {
+    dispatchers[name] = function(...args) {
+      let assumedPlayerID = playerID;
+
+      // In singleplayer mode, if the client does not have a playerID
+      // associated with it, we attach the currentPlayer as playerID.
+      if (!multiplayer && (playerID === null || playerID === undefined)) {
+        const state = store.getState();
+        assumedPlayerID = state.ctx.currentPlayer;
+      }
+
       store.dispatch(
-        ActionCreators[storeActionType](name, args, playerID, credentials)
+        ActionCreators[storeActionType](
+          name,
+          args,
+          assumedPlayerID,
+          credentials
+        )
       );
     };
     return dispatchers;
@@ -64,11 +80,15 @@ export const createMoveDispatchers = createDispatchers.bind(null, 'makeMove');
  * @param {...object} numPlayers - The number of players.
  * @param {...object} multiplayer - Set to true or { server: '<host>:<port>' }
  *                                  to make a multiplayer client. The second
- *                                  syntax specifies a non-default server.
+ *                                  syntax specifies a non-default socket server.
+ * @param {...object} socketOpts - Options to pass to socket.io.
  * @param {...object} gameID - The gameID that you want to connect to.
  * @param {...object} playerID - The playerID associated with this client.
  * @param {...string} credentials - The authentication credentials associated with this client.
  *
+ * Returns:
+ *   A JS object that provides an API to interact with the
+ *   game by dispatching moves and events.
  */
 export class BgioClient {
   multiplayerClient: Multiplayer;
@@ -89,12 +109,14 @@ export class BgioClient {
   reset: () => void;
 
   store: any;
+  log: any[];
 
   constructor({
                 game,
                 ai,
                 numPlayers,
                 multiplayer,
+                // socketOpts,
                 gameID,
                 playerID,
                 credentials,
@@ -105,7 +127,8 @@ export class BgioClient {
     this.gameID = gameID;
     this.credentials = credentials;
 
-    let server;
+    // noinspection TsLint
+    let server = undefined;
     if (multiplayer instanceof Object && 'server' in multiplayer) {
       server = multiplayer.server;
       multiplayer = true;
@@ -120,11 +143,13 @@ export class BgioClient {
     });
 
     if (ai !== undefined && multiplayer === undefined) {
-      const bot = new ai.bot({game, enumerate: ai.enumerate});
+      const bot = new ai.bot({ game, enumerate: ai.enumerate });
 
       this.step = () => {
         const state = this.store.getState();
-        const {action, metadata} = bot.play(state, state.ctx.actionPlayers[0]);
+        // noinspection TsLint
+        const playerID = state.ctx.actionPlayers[0];
+        const { action, metadata } = bot.play(state, playerID);
 
         if (action) {
           action.payload.metadata = metadata;
@@ -146,6 +171,54 @@ export class BgioClient {
     };
 
     this.store = null;
+    this.log = [];
+
+    /**
+     * Middleware that manages the log object.
+     * Reducers generate deltalogs, which are log events
+     * that are the result of application of a single action.
+     * The server may also send back a deltalog or the entire
+     * log depending on the type of socket request.
+     * The middleware below takes care of all these cases while
+     * managing the log object.
+     */
+    const LogMiddleware = store => next => action => {
+      const result = next(action);
+      const state = store.getState();
+
+      switch (action.type) {
+        case Actions.MAKE_MOVE:
+        case Actions.GAME_EVENT: {
+          const deltalog = state.deltalog;
+          this.log = [...this.log, ...deltalog];
+          break;
+        }
+
+        case Actions.RESET: {
+          this.log = [];
+          break;
+        }
+
+        case Actions.UPDATE: {
+          const deltalog = action.deltalog || [];
+          this.log = [...this.log, ...deltalog];
+          break;
+        }
+
+        case Actions.SYNC: {
+          this.log = action.log || [];
+          break;
+        }
+      }
+
+      return result;
+    };
+
+    if (enhancer !== undefined) {
+      enhancer = compose(applyMiddleware(LogMiddleware), enhancer);
+    } else {
+      enhancer = applyMiddleware(LogMiddleware);
+    }
 
     if (multiplayer) {
       this.multiplayerClient = new Multiplayer({
@@ -154,6 +227,7 @@ export class BgioClient {
         gameName: game.name,
         numPlayers,
         server,
+        // socketOpts,
       });
       this.store = this.multiplayerClient.createStore(this.reducer, enhancer);
     } else {
@@ -209,18 +283,14 @@ export class BgioClient {
     // Secrets are normally stripped on the server,
     // but we also strip them here so that game developers
     // can see their effects while prototyping.
-    let playerID = this.playerID;
-    if (!this.multiplayer && !playerID && state.ctx.currentPlayer != 'any') {
-      playerID = state.ctx.currentPlayer;
-    }
-    const G = this.game.playerView(state.G, state.ctx, playerID);
+    const G = this.game.playerView(state.G, state.ctx, this.playerID);
 
     // Combine into return value.
-    let ret = {...state, isActive, G};
+    let ret = { ...state, isActive, G, log: this.log };
 
     if (this.multiplayerClient) {
       const isConnected = this.multiplayerClient.isConnected;
-      ret = {...ret, isConnected};
+      ret = { ...ret, isConnected };
     }
 
     return ret;
@@ -237,14 +307,16 @@ export class BgioClient {
       this.game.moveNames,
       this.store,
       this.playerID,
-      this.credentials
+      this.credentials,
+      this.multiplayer
     );
 
     this.events = createEventDispatchers(
       this.game.flow.eventNames,
       this.store,
       this.playerID,
-      this.credentials
+      this.credentials,
+      this.multiplayer
     );
   }
 

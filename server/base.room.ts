@@ -71,21 +71,26 @@ export class BaseRoom extends Room {
         data.action.type === 'GAME_EVENT' && this.game.flow.canPlayerCallEvent(this.state.bgio.G, this.state.bgio.ctx, client.playerID)
       )
     ) {
-
-      // todo if (state._stateID == stateID) ??
+      // Update server's version of the store.
       this.store.dispatch(data.action);
-      this.state.bgio = this.store.getState();
+      const bgio = this.store.getState();
 
       // Get clients connected to this current game.
       for (const c of this.clients) {
-        const ctx = Object.assign({}, this.state.bgio.ctx, { _random: undefined });
-        const newState = Object.assign({}, this.state.bgio, {
-          G: this.game.playerView(this.state.bgio.G, ctx, (c as any).playerID),
-          ctx: ctx,
-        });
+        const filteredState = {
+          ...bgio,
+          G: this.game.playerView(bgio.G, bgio.ctx, (c as any).playerID),
+          ctx: { ...bgio.ctx, _random: undefined },
+          log: undefined,
+          deltalog: undefined,
+        };
 
-        this.send(c, {msgType: 'sync', gameID: data.gameID, state: newState});
+        this.send(c, {msgType: 'update', gameID: data.gameID, state: filteredState, deltalog: bgio.deltalog});
       }
+    // TODO: We currently attach the log back into the state
+      // object before storing it, but this should probably
+      // sit in a different part of the database eventually.
+      this.state.bgio = {...bgio, log: bgio.log ? [...bgio.log, ...bgio.deltalog] : bgio.deltalog};
     }
   }
 

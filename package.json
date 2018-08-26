@@ -27,7 +27,7 @@
     "@angular/router": "^6.1.0",
     "auth0-js": "^9.7.3",
     "boardgame.io": "^0.25.0",
-    "colyseus.js": "^0.9.13",
+    "colyseus.js": "^0.9.14",
     "core-js": "^2.5.4",
     "ng-animate": "^0.3.4",
     "ng-dynamic-component": "^3.0.0",

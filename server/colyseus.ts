@@ -1,5 +1,4 @@
 import { Server } from 'colyseus';
-import { monitor } from '@colyseus/monitor';
 import * as express from 'express';
 
 import { createServer, Server as HttpServer } from 'http';
@@ -17,11 +16,11 @@ gameServer.register('base-room', BaseRoom);
 
 // app.use('/colyseus', cors(), monitor(gameServer));
 
-gameServer.onShutdown(function () {
+gameServer.onShutdown(() => {
   console.log(`game server is going down.`);
 });
 
 const PORT = +(process.env.PORT || 8000);
-gameServer.listen(PORT, undefined, undefined, function (this: HttpServer) {
-  console.log('HTTP listening on ', this.address());
+gameServer.listen(PORT, undefined, undefined, function(this: HttpServer) {
+  console.log(`HTTP listening on ${PORT}`);
 });

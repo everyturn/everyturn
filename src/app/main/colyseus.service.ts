@@ -15,7 +15,7 @@ export enum CONNECTION_STATUS {
   providedIn: 'root',
 })
 export class ColyseusService extends ColyseusClient implements OnDestroy {
-  constructor(private auth: AuthService) {
+  constructor(private auth0: AuthService) {
     super(SERVER_ORIGIN);
   }
 
@@ -65,7 +65,7 @@ export class ColyseusService extends ColyseusClient implements OnDestroy {
 
   createGameRoom(gameName: string) {
     const opt: any = {gameName};
-    const accessToken = this.auth.getAccessToken();
+    const accessToken = this.auth0.getAccessToken();
     if (accessToken) {
       // we can't just {gameName, accessToken: this.auth.getAccessToken()}
       // because colyseus+msgPack will serialize 'undefined' as string

@@ -6,7 +6,7 @@ import { RouterModule } from '@angular/router';
 import { AuthModule } from './auth/auth.module';
 import { WelcomePageComponent } from './base-ui/welcome-page.component';
 import { FlexLayoutModule } from '@angular/flex-layout';
-import { MatButtonModule } from '@angular/material';
+import { MatButtonModule } from '@angular/material/button';
 import { WorkInProgressComponent } from './base-ui/work-in-progress.component';
 
 @NgModule({

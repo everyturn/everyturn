@@ -2,7 +2,7 @@ import { Jwk } from 'jwks-rsa';
 import { decode as decodeJws } from 'jws';
 import { JwksClient } from 'jwks-rsa/lib/JwksClient';
 import { promisify } from 'util';
-import { decode, verify } from 'jsonwebtoken';
+import { verify } from 'jsonwebtoken';
 import request from 'request-promise-native';
 
 const jwksClient = new JwksClient({
@@ -46,7 +46,7 @@ export async function getUserFromToken(token) {
   return request({
     uri: 'https://amitport.auth0.com/userinfo',
     headers: {
-      'Authorization': `Bearer ${token}`
+      Authorization: `Bearer ${token}`
     },
     json: true
   });

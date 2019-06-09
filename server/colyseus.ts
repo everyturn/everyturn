@@ -1,26 +1,25 @@
+import http from 'http';
+import express from 'express';
 import { Server } from 'colyseus';
-import * as express from 'express';
-
-import { createServer, Server as HttpServer } from 'http';
+// import { monitor } from '@colyseus/monitor';
+// import socialRoutes from '@colyseus/social/express';
 
 import { BaseRoom } from './base.room';
 
-const app = (express as any).default();
+const port = Number(process.env.PORT || 8000);
+const app = express();
 
-const server = createServer(app);
-const gameServer = new Server({
-  server
-});
+const server = http.createServer(app);
+const gameServer = new Server({server});
 
+// register your room handlers
 gameServer.register('base-room', BaseRoom);
 
-// app.use('/colyseus', cors(), monitor(gameServer));
+// register @colyseus/social routes
+// app.use('/', socialRoutes);
 
-gameServer.onShutdown(() => {
-  console.log(`game server is going down.`);
-});
+// register colyseus monitor AFTER registering your room handlers
+// app.use('/colyseus', monitor(gameServer));
 
-const PORT = +(process.env.PORT || 8000);
-gameServer.listen(PORT, undefined, undefined, function(this: HttpServer) {
-  console.log(`HTTP listening on ${PORT}`);
-});
+gameServer.listen(port);
+console.log(`Listening on ws://localhost:${port}`);

@@ -61,6 +61,3 @@ import 'zone.js/dist/zone';  // Included with Angular CLI.
 /***************************************************************************************************
  * APPLICATION IMPORTS
  */
-
-// hopefully temp fix for weird issue with colyseus
-(window as any).Buffer = require('buffer/').Buffer

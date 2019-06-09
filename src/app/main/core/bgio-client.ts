@@ -1,3 +1,5 @@
+/* tslint:disable:object-literal-shorthand variable-name only-arrow-functions no-redundant-jsdoc no-shadowed-variable triple-equals */
+
 /*
  * Copyright 2017 The boardgame.io Authors
  *
@@ -9,8 +11,13 @@
 import { createStore, compose, applyMiddleware } from 'redux';
 import * as Actions from './action-types';
 import * as ActionCreators from './action-creators';
+import { error } from './logger';
 import { Multiplayer } from './multiplayer';
-import { CreateGameReducer } from 'boardgame.io/dist/core';
+import { Local, LocalMaster } from './transport/local';
+import { InitializeGame, CreateGameReducer } from 'boardgame.io/dist/core';
+
+// The Game Master object (if using a local one).
+let localMaster_ = null;
 
 /**
  * createDispatchers
@@ -81,7 +88,6 @@ export const createMoveDispatchers = createDispatchers.bind(null, 'makeMove');
  * @param {...object} multiplayer - Set to true or { server: '<host>:<port>' }
  *                                  to make a multiplayer client. The second
  *                                  syntax specifies a non-default socket server.
- * @param {...object} socketOpts - Options to pass to socket.io.
  * @param {...object} gameID - The gameID that you want to connect to.
  * @param {...object} playerID - The playerID associated with this client.
  * @param {...string} credentials - The authentication credentials associated with this client.
@@ -91,7 +97,6 @@ export const createMoveDispatchers = createDispatchers.bind(null, 'makeMove');
  *   game by dispatching moves and events.
  */
 export class BgioClient {
-  multiplayerClient: Multiplayer;
   moves: { [moveNames: string]: (...args) => void };
   events: { [eventName: string]: (...args) => void };
 
@@ -111,12 +116,14 @@ export class BgioClient {
   store: any;
   log: any[];
 
+  subscribeCallback: () => void;
+  transport: any;
+
   constructor({
                 game,
                 ai,
                 numPlayers,
                 multiplayer,
-                // socketOpts,
                 gameID,
                 playerID,
                 credentials,
@@ -126,15 +133,8 @@ export class BgioClient {
     this.playerID = playerID;
     this.gameID = gameID;
     this.credentials = credentials;
-
-    // noinspection TsLint
-    let server = undefined;
-    if (multiplayer instanceof Object && 'server' in multiplayer) {
-      server = multiplayer.server;
-      multiplayer = true;
-    }
-
     this.multiplayer = multiplayer;
+    this.subscribeCallback = () => {};
 
     this.reducer = CreateGameReducer({
       game,
@@ -145,11 +145,10 @@ export class BgioClient {
     if (ai !== undefined && multiplayer === undefined) {
       const bot = new ai.bot({ game, enumerate: ai.enumerate });
 
-      this.step = () => {
+      this.step = async () => {
         const state = this.store.getState();
-        // noinspection TsLint
         const playerID = state.ctx.actionPlayers[0];
-        const { action, metadata } = bot.play(state, playerID);
+        const { action, metadata } = await bot.play(state, playerID);
 
         if (action) {
           action.payload.metadata = metadata;
@@ -160,8 +159,13 @@ export class BgioClient {
       };
     }
 
+    let initialState = null;
+    if (multiplayer === undefined) {
+      initialState = InitializeGame({ game, numPlayers });
+    }
+
     this.reset = () => {
-      this.store.dispatch(ActionCreators.reset());
+      this.store.dispatch(ActionCreators.reset(initialState));
     };
     this.undo = () => {
       this.store.dispatch(ActionCreators.undo());
@@ -177,8 +181,8 @@ export class BgioClient {
      * Middleware that manages the log object.
      * Reducers generate deltalogs, which are log events
      * that are the result of application of a single action.
-     * The server may also send back a deltalog or the entire
-     * log depending on the type of socket request.
+     * The master may also send back a deltalog or the entire
+     * log depending on the type of request.
      * The middleware below takes care of all these cases while
      * managing the log object.
      */
@@ -200,7 +204,19 @@ export class BgioClient {
         }
 
         case Actions.UPDATE: {
-          const deltalog = action.deltalog || [];
+          let id = -1;
+          if (this.log.length > 0) {
+            id = this.log[this.log.length - 1]._stateID;
+          }
+
+          let deltalog = action.deltalog || [];
+
+          // Filter out actions that are already present
+          // in the current log. This may occur when the
+          // client adds an entry to the log followed by
+          // the update from the master here.
+          deltalog = deltalog.filter(l => l._stateID > id);
+
           this.log = [...this.log, ...deltalog];
           break;
         }
@@ -214,28 +230,89 @@ export class BgioClient {
       return result;
     };
 
+    /**
+     * Middleware that intercepts actions and sends them to the master,
+     * which keeps the authoritative version of the state.
+     */
+    const TransportMiddleware = store => next => action => {
+      const baseState = store.getState();
+      const result = next(action);
+
+      if (action.clientOnly != true) {
+        this.transport.onAction(baseState, action);
+      }
+
+      return result;
+    };
+
+    /**
+     * Middleware that intercepts actions and invokes the subscription callback.
+     */
+    const SubscriptionMiddleware = () => next => action => {
+      const result = next(action);
+      this.subscribeCallback();
+      return result;
+    };
+
     if (enhancer !== undefined) {
-      enhancer = compose(applyMiddleware(LogMiddleware), enhancer);
+      enhancer = compose(
+        applyMiddleware(
+          SubscriptionMiddleware,
+          TransportMiddleware,
+          LogMiddleware
+        ),
+        enhancer
+      );
     } else {
-      enhancer = applyMiddleware(LogMiddleware);
+      enhancer = applyMiddleware(
+        SubscriptionMiddleware,
+        TransportMiddleware,
+        LogMiddleware
+      );
     }
 
-    if (multiplayer) {
-      this.multiplayerClient = new Multiplayer({
-        gameID: gameID,
-        playerID: playerID,
-        gameName: game.name,
-        numPlayers,
-        server,
-        // socketOpts,
-      });
-      this.store = this.multiplayerClient.createStore(this.reducer, enhancer);
-    } else {
-      this.store = createStore(this.reducer, enhancer);
+    this.store = createStore(this.reducer, initialState, enhancer);
 
-      // If no playerID was provided, set it to undefined.
-      if (this.playerID === null) {
-        this.playerID = undefined;
+    this.transport = {
+      isConnected: true,
+      onAction: () => {},
+      subscribe: () => {},
+      connect: () => {},
+      updateGameID: () => {},
+      updatePlayerID: () => {},
+    };
+
+    if (multiplayer !== undefined) {
+      if (multiplayer === true) {
+        multiplayer = { server: '' };
+      }
+
+      if (multiplayer.local === true) {
+        if (localMaster_ === null || localMaster_.game !== game) {
+          localMaster_ = new LocalMaster(game);
+        }
+
+        this.transport = new Local({
+          master: localMaster_,
+          store: this.store,
+          gameID: gameID,
+          playerID: playerID,
+          gameName: game.name,
+          numPlayers,
+        });
+      } else if (multiplayer.server !== undefined) {
+        this.transport = new Multiplayer({
+          store: this.store,
+          gameID: gameID,
+          playerID: playerID,
+          gameName: game.name,
+          numPlayers,
+          server: multiplayer.server,
+        });
+      } else if (multiplayer.transport !== undefined) {
+        this.transport = multiplayer.transport;
+      } else {
+        error('invalid multiplayer spec');
       }
     }
 
@@ -243,15 +320,18 @@ export class BgioClient {
   }
 
   subscribe(fn) {
-    this.store.subscribe(fn);
-
-    if (this.multiplayerClient) {
-      this.multiplayerClient.subscribe(fn);
-    }
+    const callback = () => fn(this.getState());
+    this.transport.subscribe(callback);
+    this.subscribeCallback = callback;
   }
 
   getState() {
     const state = this.store.getState();
+
+    // This is the state before a sync with the game master.
+    if (state === null) {
+      return state;
+    }
 
     // isActive.
 
@@ -288,18 +368,14 @@ export class BgioClient {
     // Combine into return value.
     let ret = { ...state, isActive, G, log: this.log };
 
-    if (this.multiplayerClient) {
-      const isConnected = this.multiplayerClient.isConnected;
-      ret = { ...ret, isConnected };
-    }
+    const isConnected = this.transport.isConnected;
+    ret = { ...ret, isConnected };
 
     return ret;
   }
 
   connect() {
-    if (this.multiplayerClient) {
-      this.multiplayerClient.connect();
-    }
+    this.transport.connect();
   }
 
   createDispatchers() {
@@ -312,7 +388,7 @@ export class BgioClient {
     );
 
     this.events = createEventDispatchers(
-      this.game.flow.eventNames,
+      this.game.flow.enabledEventNames,
       this.store,
       this.playerID,
       this.credentials,
@@ -323,19 +399,13 @@ export class BgioClient {
   updatePlayerID(playerID) {
     this.playerID = playerID;
     this.createDispatchers();
-
-    if (this.multiplayerClient) {
-      this.multiplayerClient.updatePlayerID(playerID);
-    }
+    this.transport.updatePlayerID(playerID);
   }
 
   updateGameID(gameID) {
     this.gameID = gameID;
     this.createDispatchers();
-
-    if (this.multiplayerClient) {
-      this.multiplayerClient.updateGameID(gameID);
-    }
+    this.transport.updateGameID(gameID);
   }
 
   updateCredentials(credentials) {

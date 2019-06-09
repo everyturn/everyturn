@@ -1,4 +1,12 @@
-import { applyMiddleware, compose, createStore } from 'redux';
+/* tslint:disable:no-redundant-jsdoc triple-equals no-shadowed-variable */
+/*
+ * Copyright 2017 The boardgame.io Authors
+ *
+ * Use of this source code is governed by a MIT-style
+ * license that can be found in the LICENSE file or at
+ * https://opensource.org/licenses/MIT.
+ */
+
 import * as ActionCreators from './action-creators';
 
 /**
@@ -19,6 +27,7 @@ export class Multiplayer {
 
   /**
    * Creates a new Mutiplayer instance.
+   * @param store
    * @param {string} gameID - The game ID to connect to.
    * @param {string} playerID - The player ID associated with this client.
    * @param {string} gameName - The game type (the `name` field in `Game`).
@@ -26,19 +35,22 @@ export class Multiplayer {
    * @param {string} server - The game server in the form of 'hostname:port'. Defaults to the server serving the client if not provided.
    */
   constructor({
+                store,
                 gameID,
                 playerID,
                 gameName,
                 numPlayers,
                 server,
-     }: {
-      gameID?: string;
-      playerID?: string;
-      gameName?: any;
-      numPlayers?: any;
-      server?: any;
-    } = {}) {
+              }: {
+    store?: any,
+    gameID?: string;
+    playerID?: string;
+    gameName?: any;
+    numPlayers?: any;
+    server?: any;
+  } = {}) {
     this.server = server;
+    this.store = store;
     this.gameName = gameName || 'default';
     this.gameID = gameID || 'default';
     this.playerID = playerID || null;
@@ -49,38 +61,17 @@ export class Multiplayer {
   }
 
   /**
-   * Creates a Redux store with some middleware that sends actions
-   * to the server whenever they are dispatched.
-   * @param {function} reducer - The game reducer.
-   * @param {function} enhancer - optional enhancer to apply to Redux store
+   * Called when an action that has to be relayed to the
+   * game master is made.
    */
-  createStore(reducer, enhancer) {
-    this.store = null;
-
-    // Redux middleware to emit a message on a socket
-    // whenever an action is dispatched.
-    const SocketEnhancer = applyMiddleware(({getState}) => next => action => {
-      const state: any = getState();
-      const result = next(action);
-
-      // noinspection TsLint
-      if (action.clientOnly != true) {
-        this.server.send({
-           msgType: 'update',
-           action,
-           _stateID: state._stateID,
-           gameID: this.gameID,
-           playerID: this.playerID
-        });
-      }
-
-      return result;
+  onAction(state, action) {
+    this.server.send({
+      msgType: 'update',
+      action,
+      _stateID: state._stateID,
+      gameID: this.gameID,
+      playerID: this.playerID
     });
-
-    enhancer = enhancer ? compose(enhancer, SocketEnhancer) : SocketEnhancer;
-    this.store = createStore(reducer, enhancer);
-
-    return this.store;
   }
 
   /**
@@ -90,16 +81,21 @@ export class Multiplayer {
     this.server.onMessage.add((message) => {
       switch (message.msgType) {
         case 'update':
+          // Called when another player makes a move and the
+          // master broadcasts the update to other clients (including
+          // this one).
+
           const currentState = this.store.getState();
 
-          // noinspection TsLint
           if (message.gameID == this.gameID && message.state._stateID >= currentState._stateID) {
             const action = ActionCreators.update(message.state, message.deltalog);
             this.store.dispatch(action);
           }
           break;
         case 'sync':
-          // noinspection TsLint
+          // Called when the client first connects to the master
+          // and requests the current game state.
+
           if (message.gameID == this.gameID) {
             const action = ActionCreators.sync(message.state, message.log);
             this.store.dispatch(action);
@@ -108,8 +104,12 @@ export class Multiplayer {
       }
     });
 
-    // // Initial sync to get game state.
-    // this.socket.emit('sync', this.gameID, this.playerID, this.numPlayers);
+    // Initial sync to get game state.
+    this.server.send({
+      msgType: 'sync',
+      gameID: this.gameID,
+      playerID: this.playerID
+    });
     //
     // // Keep track of connection status.
     // this.socket.on('connect', () => {
@@ -136,7 +136,7 @@ export class Multiplayer {
   updateGameID(id) {
     this.gameID = this.gameName + ':' + id;
 
-    const action = ActionCreators.reset();
+    const action = ActionCreators.reset(null);
     this.store.dispatch(action);
 
     // if (this.socket) {
@@ -151,7 +151,7 @@ export class Multiplayer {
   updatePlayerID(id) {
     this.playerID = id;
 
-    const action = ActionCreators.reset();
+    const action = ActionCreators.reset(null);
     this.store.dispatch(action);
 
     // if (this.socket) {

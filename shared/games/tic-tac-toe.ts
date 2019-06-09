@@ -6,7 +6,7 @@
  * https://opensource.org/licenses/MIT.
  */
 
-import { Game } from 'boardgame.io/dist/core';
+import { Game, INVALID_MOVE } from 'boardgame.io/dist/core';
 import { AI } from 'boardgame.io/dist/ai';
 
 export const TicTacToeAi = AI({
@@ -62,9 +62,10 @@ export const TicTacToe = Game({
 
       if (cells[id] === null) {
         cells[id] = ctx.currentPlayer;
+        return { ...G, cells };
+      } else {
+        return INVALID_MOVE;
       }
-
-      return { ...G, cells };
     },
   },
 

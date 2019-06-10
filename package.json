@@ -20,6 +20,7 @@
   "dependencies": {
     "@colyseus/monitor": "^0.10.0",
     "@colyseus/social": "^0.10.2",
+    "boardgame.io": "^0.31.7",
     "colyseus": "^0.10.7",
     "express": "^4.17.1",
     "express-jwt": "^5.3.1",

@@ -58,8 +58,11 @@ exports.TicTacToe = core_1.Game({
             const cells = [...G.cells];
             if (cells[id] === null) {
                 cells[id] = ctx.currentPlayer;
+                return Object.assign({}, G, { cells });
             }
-            return Object.assign({}, G, { cells });
+            else {
+                return core_1.INVALID_MOVE;
+            }
         },
     },
     flow: {

@@ -1,27 +1,23 @@
 "use strict";
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
-    return result;
-}
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
+const http_1 = __importDefault(require("http"));
+const express_1 = __importDefault(require("express"));
 const colyseus_1 = require("colyseus");
-const express = __importStar(require("express"));
-const http_1 = require("http");
+// import { monitor } from '@colyseus/monitor';
+// import socialRoutes from '@colyseus/social/express';
 const base_room_1 = require("./base.room");
-const app = express.default();
-const server = http_1.createServer(app);
-const gameServer = new colyseus_1.Server({
-    server
-});
+const port = Number(process.env.PORT || 8000);
+const app = express_1.default();
+const server = http_1.default.createServer(app);
+const gameServer = new colyseus_1.Server({ server });
+// register your room handlers
 gameServer.register('base-room', base_room_1.BaseRoom);
-// app.use('/colyseus', cors(), monitor(gameServer));
-gameServer.onShutdown(function () {
-    console.log(`game server is going down.`);
-});
-const PORT = +(process.env.PORT || 8000);
-gameServer.listen(PORT, undefined, undefined, function () {
-    console.log('HTTP listening on ', this.address());
-});
+// register @colyseus/social routes
+// app.use('/', socialRoutes);
+// register colyseus monitor AFTER registering your room handlers
+// app.use('/colyseus', monitor(gameServer));
+gameServer.listen(port);
+console.log(`Listening on ws://localhost:${port}`);

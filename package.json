@@ -3,6 +3,7 @@
   "scripts": {
     "start": "node dist/server/colyseus.js",
     "start:dev": "cross-env NODE_ENV=development node -r ts-node/register colyseus.ts",
+    "loadtest": "colyseus-loadtest loadtest/example.ts --room my_room --numClients 2",
     "predeploy": "npm run clean && npm run build-ts",
     "push-build": "gh-pages --dist . --src \"{package-lock.json,package.json,dist/**/*}\" --branch server-builds",
     "clean": "rimraf dist && gh-pages-clean",
@@ -10,25 +11,22 @@
     "watch-ts": "tsc -w"
   },
   "devDependencies": {
-    "@types/node": "^8.10.20",
+    "@colyseus/loadtest": "^0.10.1",
+    "@types/express": "^4.17.0",
     "cross-env": "^5.2.0",
-    "gh-pages": "^1.2.0",
-    "rimraf": "^2.6.2",
-    "ts-node": "^7.0.0"
+    "gh-pages": "^2.0.1",
+    "rimraf": "^2.6.3"
   },
   "dependencies": {
-    "@colyseus/monitor": "^0.1.7",
-    "boardgame.io": "^0.24.0",
-    "colyseus": "^0.9.13",
-    "express": "^4.16.3",
-    "jsonwebtoken": "^8.3.0",
-    "jwks-rsa": "^1.3.0",
-    "jws": "^3.1.5",
-    "redux": "^4.0.0",
-    "request": "^2.87.0",
-    "request-promise-native": "^1.0.5"
-  },
-  "engines": {
-    "node": "8"
+    "@colyseus/monitor": "^0.10.0",
+    "@colyseus/social": "^0.10.2",
+    "colyseus": "^0.10.7",
+    "express": "^4.17.1",
+    "express-jwt": "^5.3.1",
+    "jsonwebtoken": "^8.5.1",
+    "jwks-rsa": "^1.5.1",
+    "jws": "^3.2.2",
+    "request": "^2.88.0",
+    "request-promise-native": "^1.0.7"
   }
 }

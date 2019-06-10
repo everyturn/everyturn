@@ -1,7 +1,7 @@
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
-}
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const jws_1 = require("jws");
 const JwksClient_1 = require("jwks-rsa/lib/JwksClient");
@@ -41,7 +41,7 @@ async function getUserFromToken(token) {
     return request_promise_native_1.default({
         uri: 'https://amitport.auth0.com/userinfo',
         headers: {
-            'Authorization': `Bearer ${token}`
+            Authorization: `Bearer ${token}`
         },
         json: true
     });

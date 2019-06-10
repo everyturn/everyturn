@@ -1,5 +1,12 @@
 "use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
+/* tslint:disable:no-shadowed-variable */
 const colyseus_1 = require("colyseus");
 const core_1 = require("boardgame.io/core");
 const redux_1 = require("redux");
@@ -21,7 +28,7 @@ const MOCK_PLAYERS = [
         color: 'rgb(234, 123, 123)',
     }
 ];
-class BaseRoom extends colyseus_1.Room {
+let BaseRoom = class BaseRoom extends colyseus_1.Room {
     onInit({ gameName }) {
         this.setSeatReservationTime(10);
         this.maxClients = 2;
@@ -30,7 +37,8 @@ class BaseRoom extends colyseus_1.Room {
             game: this.game,
             numPlayers: 2,
         });
-        this.store = redux_1.createStore(reducer);
+        const initialState = core_1.InitializeGame({ game: this.game, numPlayers: 2, });
+        this.store = redux_1.createStore(reducer, initialState);
         this.setState({
             bgio: this.store.getState(),
             isReady: false,
@@ -51,26 +59,42 @@ class BaseRoom extends colyseus_1.Room {
         }
     }
     onMessage(client, data) {
-        if (this.state.isReady
-            &&
-                (data.action.type === 'MAKE_MOVE' && this.game.flow.canPlayerMakeMove(this.state.bgio.G, this.state.bgio.ctx, client.playerID)
-                    ||
-                        data.action.type === 'GAME_EVENT' && this.game.flow.canPlayerCallEvent(this.state.bgio.G, this.state.bgio.ctx, client.playerID))) {
-            // todo if (state._stateID == stateID) ??
-            this.store.dispatch(data.action);
-            this.state.bgio = this.store.getState();
-            // Get clients connected to this current game.
-            for (const c of this.clients) {
-                const ctx = Object.assign({}, this.state.bgio.ctx, { _random: undefined });
-                const newState = Object.assign({}, this.state.bgio, {
-                    G: this.game.playerView(this.state.bgio.G, ctx, c.playerID),
-                    ctx: ctx,
-                });
-                this.send(c, { msgType: 'sync', gameID: data.gameID, state: newState });
+        if (this.state.isReady) {
+            switch (data.msgType) {
+                case 'update':
+                    if (data.action.type === 'MAKE_MOVE' &&
+                        this.game.flow.canPlayerMakeMove(this.state.bgio.G, this.state.bgio.ctx, client.playerID)
+                        ||
+                            data.action.type === 'GAME_EVENT' &&
+                                this.game.flow.canPlayerCallEvent(this.state.bgio.G, this.state.bgio.ctx, client.playerID)) {
+                        // Update server's version of the store.
+                        this.store.dispatch(data.action);
+                        const bgio = this.store.getState();
+                        // Get clients connected to this current game.
+                        for (const c of this.clients) {
+                            const filteredState = Object.assign({}, bgio, { G: this.game.playerView(bgio.G, bgio.ctx, c.playerID), ctx: Object.assign({}, bgio.ctx, { _random: undefined }), log: undefined, deltalog: undefined });
+                            this.send(c, { msgType: 'update', gameID: data.gameID, state: filteredState, deltalog: bgio.deltalog });
+                        }
+                        // TODO: We currently attach the log back into the state
+                        // object before storing it, but this should probably
+                        // sit in a different part of the database eventually.
+                        this.state.bgio = Object.assign({}, bgio, { log: bgio.log ? [...bgio.log, ...bgio.deltalog] : bgio.deltalog });
+                    }
+                    break;
+                case 'sync':
+                    const bgio = this.store.getState();
+                    const callerFilteredState = Object.assign({}, bgio, { G: this.game.playerView(bgio.G, bgio.ctx, client.playerID), ctx: Object.assign({}, bgio.ctx, { _random: undefined }), log: undefined, deltalog: undefined });
+                    this.send(client, {
+                        msgType: 'sync',
+                        gameID: data.gameID,
+                        state: callerFilteredState,
+                        log: bgio.log // todo redactLog
+                    });
+                    break;
             }
         }
     }
-    onLeave(client) {
+    onLeave(client, consented) {
         const idx = this.state.players.findIndex(player => player.id === client.sessionId);
         this.state.players = [...this.state.players.slice(0, idx), ...this.state.players.slice(idx + 1)];
         if (this.state.players.length > 0 && this.state.bgio.ctx.gameover === undefined) {
@@ -81,5 +105,10 @@ class BaseRoom extends colyseus_1.Room {
             this.state.bgio = this.store.getState();
         }
     }
-}
+    onDispose() {
+    }
+};
+BaseRoom = __decorate([
+    colyseus_1.serialize(colyseus_1.FossilDeltaSerializer)
+], BaseRoom);
 exports.BaseRoom = BaseRoom;

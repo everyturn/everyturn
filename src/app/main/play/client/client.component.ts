@@ -1,9 +1,10 @@
 import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { IPlayer } from '../../types';
 import { fadeInUp } from '../../animations';
-import { BgioClient } from '../../core/bgio-client';
+import { _ClientImpl, Client } from 'boardgame.io/dist/client';
 import { applyMiddleware } from 'redux';
 import logger from 'redux-logger';
+import { Multiplayer } from '../../core/multiplayer';
 
 @Component({
   selector: 'et-client',
@@ -61,7 +62,7 @@ export class ClientComponent implements OnChanges {
 
   @Output() leave = new EventEmitter<never>();
 
-  client: BgioClient;
+  client: _ClientImpl;
 
   @Input() playAgain = () => {
     this.client.reset();
@@ -75,11 +76,10 @@ export class ClientComponent implements OnChanges {
   ngOnChanges(changes: SimpleChanges) {
     if (changes.isRoomReady) {
       if (changes.isRoomReady.currentValue) {
-        this.client = new BgioClient({
+        const clientOpt: any = {
           game: this.game,
           ai: this.ai,
           numPlayers: this.numPlayers,
-          multiplayer: this.multiplayer,
           gameID: this.gameID,
           playerID: this.playerID,
           credentials: this.credentials,
@@ -92,7 +92,19 @@ export class ClientComponent implements OnChanges {
               }, 300);
             }
           }) : applyMiddleware(logger),
-        });
+        };
+        if (this.multiplayer) {
+          // todo refactor this after boardgame.io has cleaner transport API
+          const server = this.multiplayer.server;
+          clientOpt.multiplayer = {
+            transport: class {
+              constructor(opt) {
+                return new Multiplayer({...opt, server});
+              }
+            }
+          }
+        }
+        this.client = Client(clientOpt);
 
         // todo is this needed? (forceUpdate on react)
         // this.client.subscribe(() => {

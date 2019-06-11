@@ -1,7 +1,7 @@
 declare module 'boardgame.io*';
 
 declare module 'boardgame.io/dist/client' {
-  export class Client {
+  export interface _ClientImpl {
     moves: {[moveName: string]: (...args) => void};
     events: {[eventName: string]: (...args) => void};
 
@@ -17,4 +17,6 @@ declare module 'boardgame.io/dist/client' {
     updatePlayerID(playerID: string): void;
     updateCredentials(credentials: string): void;
   }
+
+  export function Client(opt: any): _ClientImpl;
 }

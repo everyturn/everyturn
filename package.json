@@ -25,7 +25,7 @@
     "@angular/platform-browser-dynamic": "~8.0.0",
     "@angular/router": "~8.0.0",
     "auth0-js": "^9.10.4",
-    "boardgame.io": "0.31.7",
+    "boardgame.io": "^0.32.0",
     "colyseus.js": "^0.10.8",
     "hammerjs": "^2.0.8",
     "ng-animate": "^0.3.4",

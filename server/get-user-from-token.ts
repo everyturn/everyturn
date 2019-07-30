@@ -1,3 +1,4 @@
+// @ts-ignore
 import { Jwk } from 'jwks-rsa';
 import { decode as decodeJws } from 'jws';
 import { JwksClient } from 'jwks-rsa/lib/JwksClient';

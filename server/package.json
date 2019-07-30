@@ -19,13 +19,11 @@
   },
   "dependencies": {
     "@colyseus/monitor": "^0.10.0",
-    "@colyseus/social": "^0.10.2",
-    "boardgame.io": "^0.32.0",
-    "colyseus": "^0.10.7",
+    "colyseus": "^0.10.9",
     "express": "^4.17.1",
     "express-jwt": "^5.3.1",
     "jsonwebtoken": "^8.5.1",
-    "jwks-rsa": "^1.5.1",
+    "jwks-rsa": "^1.6.0",
     "jws": "^3.2.2",
     "request": "^2.88.0",
     "request-promise-native": "^1.0.7"

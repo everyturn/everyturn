@@ -1,0 +1,11 @@
+{
+  "name": "@everyturn/example",
+  "version": "0.0.0",
+  "type": "module",
+  "exports": {
+    "./": "./lib/"
+  },
+  "dependencies": {
+    "@everyturn/core": "0.0.0"
+  }
+}

@@ -1,6 +1,10 @@
 {
   "name": "root",
   "private": true,
+  "scripts": {
+    "watch-example": "tsc --build ./packages/example --watch --incremental",
+    "build-example": "tsc -p ./packages/example/tsconfig.json --isolatedModules"
+  },
   "devDependencies": {
     "@types/node": "^13.7.7",
     "lerna": "^3.20.2",

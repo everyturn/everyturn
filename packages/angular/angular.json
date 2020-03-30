@@ -1,0 +1,128 @@
+{
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "version": 1,
+  "newProjectRoot": "projects",
+  "projects": {
+    "everyturn-app": {
+      "projectType": "application",
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss"
+        }
+      },
+      "root": "projects/everyturn-app",
+      "sourceRoot": "projects/everyturn-app/src",
+      "prefix": "app",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:browser",
+          "options": {
+            "outputPath": "dist/everyturn-app",
+            "index": "projects/everyturn-app/src/index.html",
+            "main": "projects/everyturn-app/src/main.ts",
+            "polyfills": "projects/everyturn-app/src/polyfills.ts",
+            "tsConfig": "projects/everyturn-app/tsconfig.app.json",
+            "aot": true,
+            "assets": [
+              "projects/everyturn-app/src/favicon.ico",
+              "projects/everyturn-app/src/assets"
+            ],
+            "styles": [
+              "projects/everyturn-app/src/styles.scss"
+            ],
+            "scripts": []
+          },
+          "configurations": {
+            "production": {
+              "fileReplacements": [
+                {
+                  "replace": "projects/everyturn-app/src/environments/environment.ts",
+                  "with": "projects/everyturn-app/src/environments/environment.prod.ts"
+                }
+              ],
+              "optimization": true,
+              "outputHashing": "all",
+              "sourceMap": false,
+              "extractCss": true,
+              "namedChunks": false,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "buildOptimizer": true,
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "2mb",
+                  "maximumError": "5mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "6kb",
+                  "maximumError": "10kb"
+                }
+              ]
+            }
+          }
+        },
+        "serve": {
+          "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "browserTarget": "everyturn-app:build"
+          },
+          "configurations": {
+            "production": {
+              "browserTarget": "everyturn-app:build:production"
+            }
+          }
+        },
+        "extract-i18n": {
+          "builder": "@angular-devkit/build-angular:extract-i18n",
+          "options": {
+            "browserTarget": "everyturn-app:build"
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/everyturn-app/src/test.ts",
+            "polyfills": "projects/everyturn-app/src/polyfills.ts",
+            "tsConfig": "projects/everyturn-app/tsconfig.spec.json",
+            "karmaConfig": "projects/everyturn-app/karma.conf.js",
+            "assets": [
+              "projects/everyturn-app/src/favicon.ico",
+              "projects/everyturn-app/src/assets"
+            ],
+            "styles": [
+              "projects/everyturn-app/src/styles.scss"
+            ],
+            "scripts": []
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/everyturn-app/tsconfig.app.json",
+              "projects/everyturn-app/tsconfig.spec.json",
+              "projects/everyturn-app/e2e/tsconfig.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        },
+        "e2e": {
+          "builder": "@angular-devkit/build-angular:protractor",
+          "options": {
+            "protractorConfig": "projects/everyturn-app/e2e/protractor.conf.js",
+            "devServerTarget": "everyturn-app:serve"
+          },
+          "configurations": {
+            "production": {
+              "devServerTarget": "everyturn-app:serve:production"
+            }
+          }
+        }
+      }
+    }},
+  "defaultProject": "everyturn-app"
+}

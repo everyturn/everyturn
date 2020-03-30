@@ -6,6 +6,7 @@
     "./": "./lib/"
   },
   "dependencies": {
-    "@everyturn/core": "0.0.0"
+    "@everyturn/core": "0.0.0",
+    "@tensorflow/tfjs": "^1.7.0"
   }
 }

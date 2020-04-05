@@ -1,0 +1,55 @@
+import { Story, Preview, Meta, Props, html } from '@open-wc/demoing-storybook';
+
+import '../everyturn-game.js';
+
+<Meta 
+  title="EveryturnGame"
+  parameters={{
+    component: "everyturn-game",
+    options: { selectedPanel: "storybookjs/knobs/panel" }
+  }}
+/>
+
+# EveryturnGame
+
+A component for...
+
+## Features:
+
+- a
+- b
+- ...
+
+## How to use
+
+### Installation
+
+```bash
+yarn add everyturn-game
+```
+
+```js
+import 'everyturn-game/everyturn-game.js';
+```
+
+<Preview withToolbar>
+  <Story name="Simple">
+    {html`
+      <everyturn-game></everyturn-game>
+    `}
+  </Story>
+</Preview>
+
+## API
+
+<Props of="everyturn-game" />
+
+## Variations
+
+###### Custom Title
+
+<Story name="Custom Title">
+  {html`
+    <everyturn-game .title=${'Hello World'}></everyturn-game>
+  `}
+</Story>

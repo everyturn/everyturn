@@ -1,9 +1,21 @@
 import { rangeGen } from './utils.js';
 import { Card } from './cards.js';
 
+export interface Strategy {
+    makeMove(player: Player, g: any, legalMoves: any[]): any;
+}
+
+const RandomStrategy: Strategy = {
+    makeMove(player: Player, g: any, legalMoves: any[]) {
+        // random move
+        return legalMoves[Math.floor(Math.random() * legalMoves.length)];
+    }
+};
+
 export class Player {
     public hand!: Card[];
-    constructor(public readonly idx: number, private arr: PlayersArray) {
+
+    constructor(public readonly idx: number, private arr: PlayersArray, private strategy: Strategy = RandomStrategy) {
     }
 
     nextClockwise(offset: number = 1) {
@@ -11,9 +23,7 @@ export class Player {
     }
 
     makeMove(g: any, legalMoves: any[]) {
-        if (!legalMoves) debugger;
-        // random move
-        return legalMoves[Math.floor(Math.random() * legalMoves.length)];
+        return this.strategy.makeMove(this, g, legalMoves);
     }
 }
 
@@ -25,6 +35,7 @@ export class PlayersArray extends Array<Player> {
             this[idx] = new Player(idx, this);
         }
     }
+
 
     randomPlayer() {
         return this[Math.floor(Math.random() * this.numOfPlayers)];

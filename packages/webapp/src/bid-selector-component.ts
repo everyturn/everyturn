@@ -3,29 +3,31 @@ import { css, customElement, html, LitElement, property } from 'lit-element';
 import { cards } from '@everyturn/core/lib/cards.js';
 import './card-component.js';
 
-@customElement('et-game')
-export class GameComponent extends LitElement {
+@customElement('et-bid-selector')
+export class BidSelectorComponent extends LitElement {
   static get styles() {
     return css`
       :host {
-        display: block;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        align-items: flex-start;
+        display: flex;
+        border: 1px solid black;
         padding: 25px;
-        color: var(--everyturn-game-text-color, #000);
+      }
+      :host > * {
+        flex-grow: 0;
+        flex-shrink: 1;
+        flex-basis: auto;
+        align-self: auto;
+        margin: 5px;
       }
     `;
   }
 
-  @property({type: String}) title = 'Hey there';
-  @property({type: Number}) counter = 5;
-
-  __increment() {
-    this.counter += 1;
-  }
-
   render() {
     return html`
-      <h2>${this.title} Nr. ${this.counter}!</h2>
-      <button @click=${this.__increment}>increment</button>
       ${cards.map(({rank, suit}) => html`<et-card suit=${suit} rank=${rank} />`)}
     `;
   }

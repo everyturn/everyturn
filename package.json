@@ -1,16 +1,17 @@
 {
-  "name": "root",
   "private": true,
   "scripts": {
+    "clean-core": "tsc --build ./packages/core --clean",
+    "watch-core": "tsc --build ./packages/core --watch",
     "clean-example": "tsc --build ./packages/example --clean",
-    "watch-example": "tsc --build ./packages/example --watch"
-  },
-  "devDependencies": {
-    "@types/node": "^13.11.0",
-    "lerna": "^3.20.2",
-    "typescript": "^3.8.3"
+    "watch-example": "tsc --build ./packages/example --watch",
+    "clean-webapp": "tsc --build ./packages/webapp --clean",
+    "watch-webapp": "tsc --build ./packages/webapp --watch"
   },
   "dependencies": {
-    "@everyturn/core": "file:packages/core"
+    "@everyturn/core": "file:packages/core",
+    "@types/node": "^14.0.1",
+    "lerna": "^3.21.0",
+    "typescript": "^3.9.2"
   }
 }

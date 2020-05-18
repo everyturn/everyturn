@@ -1,0 +1,15 @@
+diff --git a/node_modules/react-scripts/scripts/start.js b/node_modules/react-scripts/scripts/start.js
+index 2568ab3..5149c4c 100644
+--- a/node_modules/react-scripts/scripts/start.js
++++ b/node_modules/react-scripts/scripts/start.js
+@@ -27,8 +27,8 @@ const verifyPackageTree = require('./utils/verifyPackageTree');
+ if (process.env.SKIP_PREFLIGHT_CHECK !== 'true') {
+   verifyPackageTree();
+ }
+-const verifyTypeScriptSetup = require('./utils/verifyTypeScriptSetup');
+-verifyTypeScriptSetup();
++// const verifyTypeScriptSetup = require('./utils/verifyTypeScriptSetup');
++// verifyTypeScriptSetup();
+ // @remove-on-eject-end
+ 
+ const fs = require('fs');

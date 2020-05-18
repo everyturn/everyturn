@@ -1,16 +1,14 @@
 {
-  "extends": "../../tsconfig.json",
+  "extends": "../../base.tsconfig.json",
   "compilerOptions": {
     "baseUrl": "./",
-    "outDir": "./lib",
-    "rootDir": "./src",
+    "outDir": "./src",
+    "rootDir": "./tsc_src",
     "paths": {
       "@everyturn/core/*": ["../core/src/*"]
     },
     "lib": ["ES2020", "DOM"],
-    "experimentalDecorators": true,
-    "composite": false,
-    "declaration": false
+    "jsx": "preserve"
   },
   "references": [
     {

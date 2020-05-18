@@ -1,13 +1,12 @@
 {
-  "extends": "../../tsconfig.json",
+  "extends": "../../base.tsconfig.json",
   "compilerOptions": {
     "baseUrl": "./",
     "outDir": "./lib",
     "rootDir": "./src",
     "paths": {
       "@everyturn/core/*": ["../core/src/*"]
-    },
-    "skipLibCheck": true // possibly remove after https://github.com/tensorflow/tfjs/issues/2835
+    }
   },
   "references": [
     {

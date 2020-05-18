@@ -1,14 +1,47 @@
 {
   "private": true,
-  "scripts": {
-    "start": "es-dev-server --app-index demo --node-resolve --preserve-symlinks --watch --open"
-  },
   "dependencies": {
-    "lit-html": "^1.1.2",
-    "lit-element": "^2.2.1",
-    "@everyturn/core": "file:../core"
+    "@everyturn/core": "0.0.0",
+    "@fluentui/react": "^7.115.0",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "styled-components": "^5.1.0"
   },
   "devDependencies": {
-    "es-dev-server": "^1.23.0"
+    "@testing-library/jest-dom": "^4.2.4",
+    "@testing-library/react": "^9.5.0",
+    "@testing-library/user-event": "^7.2.1",
+    "@types/jest": "^24.9.1",
+    "@types/react": "^16.9.35",
+    "@types/react-dom": "^16.9.8",
+    "@types/styled-components": "^5.1.0",
+    "patch-package": "^6.2.2",
+    "react-scripts": "^3.4.1"
+  },
+  "scripts": {
+    "postinstall": "patch-package",
+
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+
+    "clean-ts": "tsc --build --clean",
+    "watch-ts": "tsc --build --watch"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   }
 }

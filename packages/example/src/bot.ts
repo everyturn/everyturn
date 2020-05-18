@@ -1,5 +1,7 @@
-import tf from "@tensorflow/tfjs";
-import {x} from '@everyturn/core/t.js';
+// import tf from "@tensorflow/tfjs";
+// import {x} from '@everyturn/core/t.js';
+//
+// console.log(tf);
+// console.log(x)
 
-console.log(tf);
-console.log(x)
+console.log('not implemented');

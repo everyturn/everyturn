@@ -36,3 +36,16 @@
     transform: rotate(360deg);
   }
 }
+
+.card {
+    border: 1px solid black;
+    padding: 2px;
+    margin: 2px;
+    width: 35px;
+    background: lightgrey;
+    color: black;
+}
+
+.card--color-red {
+    color: red;
+}

@@ -1,6 +1,8 @@
 import React from 'react';
 import logo from './logo.svg';
 import './App.css';
+import { Card } from './Card';
+import { cards } from '@everyturn/core/cards.js';
 
 function App() {
   return (
@@ -18,6 +20,11 @@ function App() {
         >
           Learn React
         </a>
+        <Card />
+        <div style={{width: '400px', display: 'flex', flexWrap: 'wrap'}}>
+          {cards.map((c) => <Card value={c}/>)}
+        </div>
+
       </header>
     </div>
   );
